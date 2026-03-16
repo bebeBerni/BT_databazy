@@ -1,3 +1,8 @@
+<img src="./img/notes_archive.png">
+<img src="./img/notes_draft.png">
+<img src="./img/notes_publish.png">
+<img src="./img/notes_pin.png">
+<img src="./img/notes_unpin.png">
 <img src="./img/1.png">
 <img src="./img/2.png">
 <img src="./img/3.png">
