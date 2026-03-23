@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\NoteController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryController;
 
@@ -24,3 +25,5 @@ Route::patch('/notes/{id}/unpin', [NoteController::class, 'unpin']);
 Route::patch('/notes/{id}/publish', [NoteController::class, 'publish']);
 Route::patch('/notes/{id}/archive', [NoteController::class, 'archive']);
 Route::patch('/notes/{id}/draft', [NoteController::class, 'draft']);
+
+Route::apiResource('notes.tasks', TaskController::class);

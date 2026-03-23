@@ -4,6 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -14,8 +18,6 @@ class Note extends Model
     protected $table = 'notes';
 
     protected $primaryKey = 'id';
-
-    //public $timestamps = false;
 
     protected $fillable = [
         'user_id',
@@ -29,39 +31,63 @@ class Note extends Model
         'is_pinned' => 'boolean',
     ];
 
-    public function pin()
+    public function user(): BelongsTo
     {
-        $this->update([
-            'is_pinned' => true
-        ]);
+        return $this->belongsTo(User::class);
     }
 
-    public function unpin()
+    public function publish(): bool
     {
-        $this->update([
-            'is_pinned' => false
-        ]);
+        $this->status = 'published';
+        return $this->save();
     }
 
-    public function publish()
+    public function archive(): bool
     {
-        $this->update([
-            'status' => 'published'
-        ]);
+        $this->status = 'archived';
+        return $this->save();
     }
 
-    public function archive()
+    public function pin(): bool
     {
-        $this->update([
-            'status' => 'archived'
-        ]);
+        $this->is_pinned = true;
+        return $this->save();
     }
 
-    public function draft()
+    public function unpin(): bool
     {
-        $this->update([
-            'status' => 'draft'
-        ]);
+        $this->is_pinned = false;
+        return $this->save();
+    }
+
+    public static function searchPublished(string $q, int $limit = 20)
+    {
+        $q = trim($q);
+
+        return static::query()
+            ->where('status', 'published')
+            ->where(function (Builder $x) use ($q) {
+                $x->where('title', 'like', "%{$q}%")
+                    ->orWhere('body', 'like', "%{$q}%");
+            })
+            ->orderByDesc('updated_at')
+            ->limit($limit)
+            ->get();
+    }
+
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class, 'note_category')->withTimestamps();
+    }
+
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    public function comments(): MorphMany
+    {
+        return $this->morphMany(Comment::class, 'commentable');
     }
 
 }
