@@ -1,9 +1,4 @@
-<img src="./img/uloha1_uspesne.png">
-<img src="./img/uloha1_neuspesne.png">
-<img src="./img/uloha2_index.png">
-<img src="./img/uloha2_store.png">
-<img src="./img/uloha2_zly_vstup.png">
-<img src="./img/uloha2_neuspesne.png">
-<img src="./img/uloha3_show.png">
-<img src="./img/uloha3_zly_vstup.png">
-<img src="./img/uloha3_neuspesne.png">
+<img src="./img/logoutall.png">
+<img src="./img/passchange.png">
+<img src="./img/profile.png">
+<img src="./img/profilepfp.png">
