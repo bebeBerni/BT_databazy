@@ -90,4 +90,10 @@ class Note extends Model
         return $this->morphMany(Comment::class, 'commentable');
     }
 
+    public function attachments()
+    {
+        return $this->hasMany(\App\Models\Attachment::class);
+    }
+
+
 }

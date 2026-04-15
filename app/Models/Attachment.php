@@ -54,4 +54,10 @@ public function attachments(): MorphMany
         ->where('collection', 'attachment');
 }
 
+    public function note()
+    {
+        return $this->belongsTo(\App\Models\Note::class);
+    }
+
+
 }

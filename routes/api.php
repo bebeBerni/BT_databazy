@@ -63,3 +63,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('comments/{comment}', [CommentController::class, 'update']);
     Route::delete('comments/{comment}', [CommentController::class, 'destroy']);
 });
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('notes/{note}/attachments', [AttachmentController::class, 'index']);
+    Route::post('notes/{note}/attachments', [AttachmentController::class, 'store'])
+        ->middleware('premium');
+    Route::get('attachments/{attachment}/link', [AttachmentController::class, 'link']);
+    Route::delete('attachments/{attachment}', [AttachmentController::class, 'destroy']);
+});

@@ -14,9 +14,9 @@ use Throwable;
 
 class AttachmentController extends Controller
 {
-
     public function index(Note $note)
     {
+        $this->authorize('view', $note);
 
         $attachments = $note->attachments()
             ->latest()
@@ -29,10 +29,14 @@ class AttachmentController extends Controller
 
     public function link(Attachment $attachment)
     {
+        $this->authorize('download', $attachment);
 
         $expiresAt = now()->addSeconds(30);
 
-        $url = Storage::disk($attachment->disk)->temporaryUrl($attachment->path, $expiresAt);
+        $url = Storage::disk($attachment->disk)->temporaryUrl(
+            $attachment->path,
+            $expiresAt
+        );
 
         return response()->json([
             'url' => $url,
@@ -40,9 +44,9 @@ class AttachmentController extends Controller
         ], Response::HTTP_OK);
     }
 
-
     public function store(Request $request, Note $note)
     {
+        $this->authorize('create', [Attachment::class, $note]);
 
         $validated = $request->validate([
             'files' => ['required', 'array', 'min:1', 'max:10'],
@@ -92,5 +96,17 @@ class AttachmentController extends Controller
             'message' => 'Prílohy boli nahrané.',
             'attachments' => $created,
         ], Response::HTTP_CREATED);
+    }
+
+    public function destroy(Attachment $attachment)
+    {
+        $this->authorize('delete', $attachment);
+
+        Storage::disk($attachment->disk)->delete($attachment->path);
+        $attachment->delete();
+
+        return response()->json([
+            'message' => 'Príloha bola odstránená.',
+        ], Response::HTTP_OK);
     }
 }
