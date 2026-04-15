@@ -42,6 +42,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Categories - all logged users can read
     Route::apiResource('categories', CategoryController::class);
+
+    Route::get('/myNotes', [NoteController::class, 'myNotes']);
 });
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
@@ -51,18 +53,13 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 
 Route::get('/attachments/{attachments:public_id}/link', [AttachmentController::class, 'link']);
 
-Route::apiResource('notes', NoteController::class);
-Route::get('notes/stats/status', [NoteController::class, 'statsByStatus']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('notes/{note}/comments', [CommentController::class, 'indexForNote']);
+    Route::post('notes/{note}/comments', [CommentController::class, 'storeForNote']);
 
+    Route::get('notes/{note}/tasks/{task}/comments', [CommentController::class, 'indexForTask']);
+    Route::post('notes/{note}/tasks/{task}/comments', [CommentController::class, 'storeForTask']);
 
-
-Route::get('notes/{note}/comments', [CommentController::class, 'indexForNote']);
-Route::post('notes/{note}/comments', [CommentController::class, 'storeForNote']);
-
-Route::get('notes/{note}/tasks/{task}/comments', [CommentController::class, 'indexForTask']);
-Route::post('notes/{note}/tasks/{task}/comments', [CommentController::class, 'storeForTask']);
-
-Route::patch('comments/{comment}', [CommentController::class, 'update']);
-Route::delete('comments/{comment}', [CommentController::class, 'destroy']);
-
-Route::get('/myNotes', [NoteController::class, 'myNotes']);
+    Route::patch('comments/{comment}', [CommentController::class, 'update']);
+    Route::delete('comments/{comment}', [CommentController::class, 'destroy']);
+});
