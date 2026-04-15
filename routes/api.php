@@ -1,34 +1,12 @@
 <?php
 
+use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CategoryController;
-
-
-Route::apiResource('notes', NoteController::class);
-
-Route::get('notes/stats/status', [NoteController::class, 'statsByStatus']);
-
-Route::patch('notes/actions/archive-old-drafts', [NoteController::class, 'archiveOldDrafts']);
-
-Route::get('users/{user}/notes', [NoteController::class, 'userNotesWithCategories']);
-
-Route::get('notes-actions/search', [NoteController::class, 'search']);
-
-Route::patch('/notes/{id}/restore', [NoteController::class, 'restore']);
-
-Route::apiResource('categories', CategoryController::class);
-
-Route::patch('/notes/{id}/pin', [NoteController::class, 'pin']);
-Route::patch('/notes/{id}/unpin', [NoteController::class, 'unpin']);
-Route::patch('/notes/{id}/publish', [NoteController::class, 'publish']);
-Route::patch('/notes/{id}/archive', [NoteController::class, 'archive']);
-Route::patch('/notes/{id}/draft', [NoteController::class, 'draft']);
-
-Route::apiResource('notes.tasks', TaskController::class);
-
 
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
@@ -40,24 +18,51 @@ Route::prefix('auth')->group(function () {
     });
 });
 
-// zvyšné endpointy zostanú zatiaľ bez zmeny...
-Route::apiResource('notes', NoteController::class);
-
-// vy ich tam máte viac... nemažte si ich...
-
 Route::middleware('auth:sanctum')->group(function () {
-    // všetci prihlásení môžu čítať kategórie
-    Route::apiResource('categories', CategoryController::class)->only(['index', 'show']);
+    // Notes
+    Route::apiResource('notes', NoteController::class);
+    //Route::get('/notes', [NoteController::class, 'index']);
+    Route::get('notes/stats/status', [NoteController::class, 'statsByStatus']);
+    Route::patch('notes/actions/archive-old-drafts', [NoteController::class, 'archiveOldDrafts']);
+    Route::get('users/{user}/notes', [NoteController::class, 'userNotesWithCategories']);
 
-    // iba admin môže vytvárať, upravovať, mazať kategórie
-    Route::middleware('admin')->group(function () {
-        Route::apiResource('categories', CategoryController::class)->except(['index', 'show']);
-    });
+    Route::patch('notes/{id}/pin', [NoteController::class, 'pin']);
+    Route::patch('notes/{id}/unpin', [NoteController::class, 'unpin']);
+    Route::patch('notes/{id}/publish', [NoteController::class, 'publish']);
+    Route::patch('notes/{id}/archive', [NoteController::class, 'archive']);
+    Route::patch('notes/{id}/draft', [NoteController::class, 'draft']);
+
+    // Tasks
+    Route::apiResource('notes.tasks', TaskController::class);
+
+    // Profile / auth actions
+    Route::post('/logout-all', [AuthController::class, 'logoutAll']);
+    Route::post('/change-password', [AuthController::class, 'changePassword']);
+    Route::post('/profile', [AuthController::class, 'updateProfile']);
+
+    // Categories - all logged users can read
+    Route::apiResource('categories', CategoryController::class);
 });
 
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    // Categories - only admin can create, update, delete
+    Route::apiResource('categories', CategoryController::class);
+});
 
-Route::middleware('auth:sanctum')->post('/logout-all', [AuthController::class, 'logoutAll']);
+Route::get('/attachments/{attachments:public_id}/link', [AttachmentController::class, 'link']);
 
-Route::middleware('auth:sanctum')->post('/change-password', [AuthController::class, 'changePassword']);
+Route::apiResource('notes', NoteController::class);
+Route::get('notes/stats/status', [NoteController::class, 'statsByStatus']);
 
-Route::middleware('auth:sanctum')->post('/profile', [AuthController::class, 'updateProfile']);
+
+
+Route::get('notes/{note}/comments', [CommentController::class, 'indexForNote']);
+Route::post('notes/{note}/comments', [CommentController::class, 'storeForNote']);
+
+Route::get('notes/{note}/tasks/{task}/comments', [CommentController::class, 'indexForTask']);
+Route::post('notes/{note}/tasks/{task}/comments', [CommentController::class, 'storeForTask']);
+
+Route::patch('comments/{comment}', [CommentController::class, 'update']);
+Route::delete('comments/{comment}', [CommentController::class, 'destroy']);
+
+Route::get('/myNotes', [NoteController::class, 'myNotes']);

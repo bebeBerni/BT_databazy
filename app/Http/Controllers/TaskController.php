@@ -14,8 +14,10 @@ class TaskController extends Controller
      */
     public function index(Note $note)
     {
+        $this->authorize('viewAnyForNote', [Task::class, $note]);
+
         $tasks = $note->tasks()
-            ->orderByDesc('created_at')
+            ->orderBy('created_at')
             ->get();
 
         return response()->json([
@@ -28,6 +30,8 @@ class TaskController extends Controller
      */
     public function store(Request $request, Note $note)
     {
+        $this->authorize('createForNote', [Task::class, $note]);
+
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'is_done' => ['sometimes', 'boolean'],
@@ -67,10 +71,13 @@ class TaskController extends Controller
             ], Response::HTTP_NOT_FOUND);
         }
 
+        $this->authorize('view', $task);
+
         return response()->json([
             'task' => $task
         ], Response::HTTP_OK);
     }
+
     /**
      * Update the specified resource in storage.
      */
@@ -82,13 +89,19 @@ class TaskController extends Controller
             ], Response::HTTP_NOT_FOUND);
         }
 
+        $this->authorize('update', $task);
+
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'is_done' => ['sometimes', 'boolean'],
             'due_at' => ['nullable', 'date'],
         ]);
 
-        $task->update($validated);
+        $task->update([
+            'title' => $validated['title'],
+            'is_done' => $validated['is_done'] ?? $task->is_done,
+            'due_at' => $validated['due_at'] ?? $task->due_at,
+        ]);
 
         return response()->json([
             'message' => 'Úloha bola úspešne aktualizovaná.',
@@ -106,6 +119,8 @@ class TaskController extends Controller
                 'message' => 'Úloha nenájdená.',
             ], Response::HTTP_NOT_FOUND);
         }
+
+        $this->authorize('delete', $task);
 
         $task->delete();
 
