@@ -1,4 +1,7 @@
-<img src="./img/logoutall.png">
-<img src="./img/passchange.png">
-<img src="./img/profile.png">
-<img src="./img/profilepfp.png">
+<img src="./img/create_user1.png">
+<img src="./img/show_user2.png">
+<img src="./img/admin_show.png">
+<img src="./img/comment_user1.png">
+<img src="./img/comment_user1_get.png">
+<img src="./img/comment_user2.png">
+<img src="./img/admin_comment.png">
