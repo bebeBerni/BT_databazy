@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -110,6 +111,8 @@ class AuthController extends Controller
             'password'   => $validated['password'], // cast zahashuje heslo
             'role'       => 'user',
         ]);
+
+        event(new Registered($user));
 
         $token = $user->createToken('auth-token')->plainTextToken;
 
